@@ -125,7 +125,7 @@ export default function SettingsPage() {
               Erlebnis und Offline-Zugriff.
             </p>
             <div className="mt-4">
-              {typeof window !== 'undefined' && (
+              {typeof window !== "undefined" && (
                 <button
                   onClick={handleInstallApp}
                   disabled={isInstallPromptShown || !isInstallable}
@@ -134,9 +134,9 @@ export default function SettingsPage() {
                   <Download className="mr-2 -ml-1 h-5 w-5" />
                   {isInstallPromptShown
                     ? "Installation angefragt..."
-                    : isInstallable 
-                      ? "Als App installieren"
-                      : "Installation nicht verfügbar"}
+                    : isInstallable
+                    ? "Als App installieren"
+                    : "Installation nicht verfügbar"}
                 </button>
               )}
             </div>

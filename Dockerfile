@@ -1,37 +1,76 @@
-# Base image: Node.js 18 (LTS) on Alpine Linux for a small image size
+# syntax=docker.io/docker/dockerfile:1
+
 FROM node:24-alpine AS base
 
-# Set working directory in the container
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies for Alpine
-# Python and build tools are needed for native NPM modules (like sqlite3)
-RUN apk add --no-cache python3 make g++ git
+# Clean yarn cache before installing to save space
+RUN yarn cache clean
 
-# Copy package.json and yarn.lock (if available)
+# Install only production dependencies to save space
 COPY package.json yarn.lock* ./
+RUN yarn install --production --frozen-lockfile --network-timeout 100000
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+
+# Stage for dev dependencies and build
+FROM base AS builder
+WORKDIR /app
+
+# Install the minimum required build dependencies
+RUN apk add --no-cache python3 make g++
+
+# First copy only package files and install dev dependencies
+COPY package.json yarn.lock* ./
+RUN yarn install --frozen-lockfile --network-timeout 100000
 
 # Copy source code
 COPY . .
 
-# Build NextJS application for production
+# Disable telemetry during build
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the application
 RUN yarn build
 
-# Create persistence directory for the SQLite database
-RUN mkdir -p /data
+# Production image, minimal footprint
+FROM node:24-alpine AS runner
+WORKDIR /app
 
-# Add environment variable for the SQLite file path (can be overridden)
+# Set to production environment
+ENV NODE_ENV=production
+# Disable telemetry during runtime
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Add non-privileged user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Create persistence directory for SQLite with proper permissions
+RUN mkdir -p /data && chown nextjs:nodejs /data
+
+# Install only what's absolutely needed for SQLite
+RUN apk add --no-cache sqlite-libs
+
+# Set environment variables
 ENV SQLITE_DB_PATH=/data/sqlite.db
-
-# Environment variable for NextAuth secret (should be overridden in production deployment)
 ENV NEXTAUTH_SECRET=71b8378ab4cb0d8f67ef6a0fa7874114169c99e6d3b879ca407b77d14e0c
-
-# Port on which the application will run
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+ENV AUTH_TRUST_HOST=localhost:3000
+
+# Copy only the necessary production files
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Use non-root user
+USER nextjs
+
 EXPOSE 3000
 
-# Set start command
-CMD ["yarn", "start"]
+# Start the server
+CMD ["node", "server.js"]
