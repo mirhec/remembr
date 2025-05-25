@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth();
@@ -15,7 +15,7 @@ export async function GET(
             );
         }
 
-        const id = params.id;
+        const { id } = await params;
         const text = await getTextById(id);
 
         if (!text) {
@@ -40,7 +40,7 @@ export async function GET(
 // Update text
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth();
@@ -51,7 +51,7 @@ export async function PUT(
             );
         }
 
-        const id = params.id;
+        const { id } = await params;
 
         // Check if the text exists and belongs to the user
         const existingText = await getTextById(id);
@@ -97,7 +97,7 @@ export async function PUT(
 // Delete text
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth();
@@ -108,7 +108,7 @@ export async function DELETE(
             );
         }
 
-        const id = params.id;
+        const { id } = await params;
 
         // Check if the text exists and belongs to the user
         const existingText = await getTextById(id);

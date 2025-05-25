@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await auth();
@@ -15,7 +15,7 @@ export async function POST(
             );
         }
 
-        const id = params.id;
+        const { id } = await params;
 
         // Check if the text exists and belongs to the user
         const text = await getTextById(id);

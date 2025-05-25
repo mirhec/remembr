@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { initializeDb } from "@/lib/db";
 import { nanoid } from "nanoid";
+import bcrypt from "bcrypt";
 
 export const {
     handlers: { GET, POST },
@@ -22,7 +22,7 @@ export const {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
             },
-            async authorize(credentials) {
+            async authorize(credentials: Partial<Record<"email" | "password", unknown>>) {
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
@@ -34,7 +34,7 @@ export const {
                     // Find user by email
                     const user = await db.get(
                         "SELECT * FROM users WHERE email = ? LIMIT 1",
-                        [credentials.email.toLowerCase()]
+                        [(credentials.email as string).toLowerCase()]
                     );
 
                     if (!user || !user.password) {
@@ -42,7 +42,7 @@ export const {
                     }
 
                     // Check password
-                    const passwordMatch = await bcrypt.compare(credentials.password, user.password);
+                    const passwordMatch = await bcrypt.compare(credentials.password as string, user.password);
 
                     if (!passwordMatch) {
                         return null;

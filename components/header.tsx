@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import { signOut } from "next-auth/react";
 import { Menu, X, Sun, Moon, LogOut, Book } from "lucide-react";
 import { useState } from "react";
+import { User } from "next-auth";
 
 interface NavItem {
   name: string;
@@ -20,15 +21,7 @@ const navItems: NavItem[] = [
 ];
 
 interface HeaderProps {
-  user:
-    | {
-        id?: string;
-        name?: string;
-        email?: string;
-        image?: string;
-      }
-    | null
-    | undefined;
+  user: User | undefined;
 }
 
 export function Header({ user }: HeaderProps) {

@@ -33,7 +33,7 @@ export async function getUserTexts({
     userId,
     searchQuery = ""
 }: {
-    userId: string;
+    userId: string | undefined;
     searchQuery?: string
 }): Promise<Text[]> {
     try {
@@ -93,7 +93,7 @@ export async function createText({
     title: string;
     content: string;
     tags?: string;
-    userId: string
+    userId: string | undefined
 }): Promise<Text> {
     try {
         const db = await initializeDb();

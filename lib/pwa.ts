@@ -18,9 +18,7 @@ export function registerServiceWorker() {
 
 // Add to homescreen prompt
 export function useAddToHomeScreenPrompt() {
-    if (typeof window === 'undefined') return;
-
-    let deferredPrompt;
+    let deferredPrompt: any;
 
     window.addEventListener('beforeinstallprompt', (e) => {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
@@ -36,7 +34,7 @@ export function useAddToHomeScreenPrompt() {
         // Show the install prompt
         deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult) => {
+        deferredPrompt.userChoice.then((choiceResult: any) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('User accepted the install prompt');
             } else {
