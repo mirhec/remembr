@@ -1,0 +1,55 @@
+# Git files
+.git
+.github
+.gitignore
+
+# Node.js files
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Next.js files
+.next
+out
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Database files (these will be mounted as volumes)
+*.db
+sqlite.db
+
+# IDE files
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build files
+dist
+build
+
+# Docker files
+.dockerignore
+Dockerfile
+docker-compose*.yml
+
+# Test files
+__tests__
+coverage
+.nyc_output
+
+# Misc
+README.md
+LICENSE
+*.md
+!DOCKER.md

@@ -1,5 +1,5 @@
 # Base image: Node.js 18 (LTS) on Alpine Linux for a small image size
-FROM node:18-alpine AS base
+FROM node:24-alpine AS base
 
 # Set working directory in the container
 WORKDIR /app

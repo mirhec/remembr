@@ -20,10 +20,10 @@ export async function initializeDb() {
     return dbInstance;
 }
 
-// Für die Kompatibilität mit bestehenden Code
+// For compatibility with existing code
 // Actual implementation uses direct SQL instead of these placeholder functions
 export const db = {
-    // Diese Funktionen dienen nur als Platzhalter und sollten nicht mehr verwendet werden
+    // These functions serve only as placeholders and should no longer be used
     select: () => ({
         from: () => ({
             where: () => ({
@@ -58,11 +58,11 @@ export const db = {
 // Apply migrations if needed (in production, you'd typically do this separately)
 export async function applyMigrations() {
     try {
-        // Hier würden wir migrations anwenden, aber da wir nicht Drizzle-orm/sqlite-migrator verwenden,
-        // müssen wir einen anderen Ansatz verwenden oder Tabellen manuell erstellen
+        // Here we would apply migrations, but since we're not using Drizzle-orm/sqlite-migrator,
+        // we need to use a different approach or manually create tables
         const dbConnection = await initializeDb();
 
-        // Benutzer-Tabelle erstellen, falls nicht vorhanden
+        // Create users table if it doesn't exist
         await dbConnection.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
@@ -76,7 +76,7 @@ export async function applyMigrations() {
       )
     `);
 
-        // Texte-Tabelle erstellen, falls nicht vorhanden
+        // Create texts table if it doesn't exist
         await dbConnection.exec(`
       CREATE TABLE IF NOT EXISTS texts (
         id TEXT PRIMARY KEY,
@@ -91,7 +91,7 @@ export async function applyMigrations() {
       )
     `);
 
-        // Sessions-Tabelle erstellen, falls nicht vorhanden
+        // Create sessions table if it doesn't exist
         await dbConnection.exec(`
       CREATE TABLE IF NOT EXISTS sessions (
         id TEXT PRIMARY KEY,
