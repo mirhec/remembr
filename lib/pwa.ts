@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 // Register the service worker for PWA functionality
 export function registerServiceWorker() {
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -18,14 +20,26 @@ export function registerServiceWorker() {
 
 // Add to homescreen prompt
 export function useAddToHomeScreenPrompt() {
-    let deferredPrompt: any;
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredPrompt = e;
-    });
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e: Event) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            setDeferredPrompt(e);
+        };
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            }
+        };
+    }, []);
 
     const promptToInstall = () => {
         if (!deferredPrompt) {
@@ -41,9 +55,9 @@ export function useAddToHomeScreenPrompt() {
                 console.log('User dismissed the install prompt');
             }
             // Clear the deferredPrompt so it can be garbage collected
-            deferredPrompt = null;
+            setDeferredPrompt(null);
         });
     };
 
-    return { promptToInstall };
+    return { promptToInstall, isInstallable: !!deferredPrompt };
 }

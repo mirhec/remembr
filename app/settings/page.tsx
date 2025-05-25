@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [isInstallPromptShown, setIsInstallPromptShown] = useState(false);
   const router = useRouter();
-  const { promptToInstall } = useAddToHomeScreenPrompt();
+  const { promptToInstall, isInstallable } = useAddToHomeScreenPrompt();
 
   // Redirect if not authenticated
   if (status === "unauthenticated") {
@@ -125,16 +125,20 @@ export default function SettingsPage() {
               Erlebnis und Offline-Zugriff.
             </p>
             <div className="mt-4">
-              <button
-                onClick={handleInstallApp}
-                disabled={isInstallPromptShown}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-              >
-                <Download className="mr-2 -ml-1 h-5 w-5" />
-                {isInstallPromptShown
-                  ? "Installation angefragt..."
-                  : "Als App installieren"}
-              </button>
+              {typeof window !== 'undefined' && (
+                <button
+                  onClick={handleInstallApp}
+                  disabled={isInstallPromptShown || !isInstallable}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                >
+                  <Download className="mr-2 -ml-1 h-5 w-5" />
+                  {isInstallPromptShown
+                    ? "Installation angefragt..."
+                    : isInstallable 
+                      ? "Als App installieren"
+                      : "Installation nicht verfügbar"}
+                </button>
+              )}
             </div>
           </div>
         </div>
