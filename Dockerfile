@@ -52,8 +52,11 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Create persistence directory for SQLite with proper permissions
 RUN mkdir -p /data && chown nextjs:nodejs /data
 
-# Install only what's absolutely needed for SQLite
-RUN apk add --no-cache sqlite-libs
+# Install SQLite and additional dependencies for database initialization
+RUN apk add --no-cache sqlite-libs sqlite
+
+# Install SQLite modules needed for the database initialization script
+RUN npm install --no-save sqlite sqlite3 path fs
 
 # Set environment variables
 ENV SQLITE_DB_PATH=/data/sqlite.db
@@ -67,10 +70,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# Create scripts directory and copy database initialization script
+RUN mkdir -p ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/init-db.js ./scripts/init-db.js
+
 # Use non-root user
 USER nextjs
 
 EXPOSE 3000
 
-# Start the server
-CMD ["node", "server.js"]
+# Initialize database and start the server
+CMD ["/bin/sh", "-c", "node scripts/init-db.js && node server.js"]
