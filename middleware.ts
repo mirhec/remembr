@@ -11,20 +11,15 @@ export async function middleware(request: NextRequest) {
     // Check if the path starts with any of the protected paths
     const isProtectedPath = protectedPaths.some((path) =>
         request.nextUrl.pathname.startsWith(path)
-    );
-
-    if (isProtectedPath && !isAuthenticated) {
+    ); if (isProtectedPath && !isAuthenticated) {
         // Redirect to login page if trying to access protected route without authentication
         const loginUrl = new URL("/login", request.url);
 
-        // Get the hostname from request headers to handle Docker properly
-        const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || new URL(request.url).host;
-        const protocol = request.headers.get("x-forwarded-proto") || new URL(request.url).protocol.replace(":", "");
+        // Store the current URL as the callback URL without reconstructing it
+        // This avoids protocol/host detection issues that can occur in different environments
+        const callbackUrl = request.nextUrl.pathname + request.nextUrl.search;
 
-        // Create a proper callback URL using the host from headers
-        const callbackUrl = `${protocol}://${host}${request.nextUrl.pathname}${request.nextUrl.search}`;
-
-        loginUrl.searchParams.set("callbackUrl", encodeURI(callbackUrl));
+        loginUrl.searchParams.set("callbackUrl", callbackUrl);
         return NextResponse.redirect(loginUrl);
     }
 
@@ -50,6 +45,5 @@ export const config = {
         "/login",
         "/register",
         "/",
-    ],
-    runtime: "experimental-edge" // Aktualisiert auf die empfohlene Runtime
+    ]
 };

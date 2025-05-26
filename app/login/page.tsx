@@ -18,6 +18,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Get callbackUrl from URL if present
+      const searchParams = new URLSearchParams(window.location.search);
+      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
       const result = await signIn("credentials", {
         email,
         password,
@@ -30,8 +34,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Bei erfolgreicher Anmeldung zum Dashboard weiterleiten
-      router.push("/dashboard");
+      // Redirect to callback URL or dashboard on successful login
+      router.push(callbackUrl);
     } catch (error) {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
