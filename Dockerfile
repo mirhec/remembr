@@ -60,10 +60,11 @@ RUN npm install --no-save sqlite sqlite3 path fs
 
 # Set environment variables
 ENV SQLITE_DB_PATH=/data/sqlite.db
-ENV NEXTAUTH_SECRET=71b8378ab4cb0d8f67ef6a0fa7874114169c99e6d3b879ca407b77d14e0c
+ENV NEXTAUTH_SECRET=your-secret-key
+# NEXTAUTH_URL must be set at runtime via environment variable to your domain
+# e.g., ENV NEXTAUTH_URL=https://remembr.your-domain.com
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV AUTH_TRUST_HOST=localhost:3000
 
 # Copy only the necessary production files
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public

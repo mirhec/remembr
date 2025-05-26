@@ -11,12 +11,18 @@ export async function middleware(request: NextRequest) {
     // Check if the path starts with any of the protected paths
     const isProtectedPath = protectedPaths.some((path) =>
         request.nextUrl.pathname.startsWith(path)
-    ); if (isProtectedPath && !isAuthenticated) {
+    );
+
+    // Skip authentication checks for API routes to prevent redirection loops
+    if (request.nextUrl.pathname.startsWith('/api/auth')) {
+        return NextResponse.next();
+    }
+
+    if (isProtectedPath && !isAuthenticated) {
         // Redirect to login page if trying to access protected route without authentication
         const loginUrl = new URL("/login", request.url);
 
-        // Store the current URL as the callback URL without reconstructing it
-        // This avoids protocol/host detection issues that can occur in different environments
+        // Get current URL components for callback
         const callbackUrl = request.nextUrl.pathname + request.nextUrl.search;
 
         loginUrl.searchParams.set("callbackUrl", callbackUrl);

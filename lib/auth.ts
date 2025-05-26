@@ -15,6 +15,20 @@ export const {
     pages: {
         signIn: "/login",
     },
+    // Added cookie configuration to handle domain issues
+    cookies: {
+        sessionToken: {
+            name: `next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: process.env.NODE_ENV === "production", // Only use secure in production
+            },
+        },
+    },
+    // Trust the actual domain being used
+    trustHost: true,
     providers: [
         CredentialsProvider({
             name: "credentials",
@@ -60,8 +74,7 @@ export const {
                 }
             }
         })
-    ],
-    callbacks: {
+    ], callbacks: {
         async session({ session, token }) {
             if (token && session.user) {
                 session.user.id = token.sub as string;
@@ -73,6 +86,15 @@ export const {
                 token.sub = user.id;
             }
             return token;
+        },
+        async redirect({ url, baseUrl }) {
+            // Handle redirects properly across domains
+            // If the URL is absolute and starts with baseUrl or is relative, use it
+            if (url.startsWith(baseUrl) || url.startsWith('/')) {
+                return url;
+            }
+            // Otherwise use the base URL
+            return baseUrl;
         }
     }
 });

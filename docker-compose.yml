@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  remembr-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXTAUTH_URL=https://remembr.your-domain.com
+      - NEXTAUTH_SECRET=your-secret-key
+      - NODE_ENV=production
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

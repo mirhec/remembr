@@ -21,21 +21,20 @@ export default function LoginPage() {
       // Get callbackUrl from URL if present
       const searchParams = new URLSearchParams(window.location.search);
       const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
+        callbackUrl: callbackUrl, // Pass callbackUrl to NextAuth
       });
 
       if (result?.error) {
         setError("Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.");
         setLoading(false);
         return;
-      }
-
-      // Redirect to callback URL or dashboard on successful login
-      router.push(callbackUrl);
+      } // Force window location change instead of using Next.js router
+      // This ensures a full page reload which helps with cookie/session handling
+      window.location.href = callbackUrl;
     } catch (error) {
       setError(
         "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut."
