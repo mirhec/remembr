@@ -16,7 +16,15 @@ export async function middleware(request: NextRequest) {
     if (isProtectedPath && !isAuthenticated) {
         // Redirect to login page if trying to access protected route without authentication
         const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("callbackUrl", encodeURI(request.url));
+
+        // Get the hostname from request headers to handle Docker properly
+        const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || new URL(request.url).host;
+        const protocol = request.headers.get("x-forwarded-proto") || new URL(request.url).protocol.replace(":", "");
+
+        // Create a proper callback URL using the host from headers
+        const callbackUrl = `${protocol}://${host}${request.nextUrl.pathname}${request.nextUrl.search}`;
+
+        loginUrl.searchParams.set("callbackUrl", encodeURI(callbackUrl));
         return NextResponse.redirect(loginUrl);
     }
 
